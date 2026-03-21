@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 
 function DriverDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('profile');
@@ -89,13 +90,13 @@ function DriverDashboard({ user, onLogout }) {
           <p style={styles.qrTitle}>Your Verification QR</p>
           <p style={styles.qrSub}>Show this to passengers to verify your identity</p>
           <div style={styles.qrBox}>
-            <p style={{ fontSize: '12px', color: '#888' }}>
-              QR: {driver.phone}
-            </p>
-            <p style={{ fontSize: '11px', color: '#aaa', marginTop: '4px' }}>
-              (QR library will be added)
-            </p>
-          </div>
+     <QRCodeSVG
+  value={`DRIVERVERIFY:${driver.phone}:${driver.id}`}
+  size={130}
+  level="H"
+/>
+  
+           </div>
           <p style={{ fontSize: '12px', color: '#888', marginTop: '8px' }}>
             Driver ID: {driver.id}
           </p>

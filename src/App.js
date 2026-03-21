@@ -2,13 +2,25 @@ import React, { useState } from 'react';
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import DriverDashboard from './pages/DriverDashboard';
+import PassengerDashboard from './pages/PasengerDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+
+const ADMIN_SECRET = 'SHOBHIT@6389180389';
 
 function App() {
   const [currentRole, setCurrentRole] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [adminInput, setAdminInput] = useState('');
+  const [adminError, setAdminError] = useState('');
+
+  const isAdminURL = window.location.pathname === '/admin-dv-9x2k';
 
   const handleSelectRole = (role) => {
-    setCurrentRole(role);
+    if (role === 'admin') {
+      setCurrentRole('fake-admin');
+    } else {
+      setCurrentRole(role);
+    }
   };
 
   const handleLogin = (user) => {
@@ -24,20 +36,72 @@ function App() {
     setCurrentRole(null);
   };
 
+  const handleAdminLogin = () => {
+    if (adminInput === ADMIN_SECRET) {
+      setCurrentUser({ name: 'Shobhit', role: 'admin' });
+    } else {
+      setAdminError('Wrong password!');
+    }
+  };
+
+  // Secret Admin URL
+  if (isAdminURL) {
+    if (currentUser && currentUser.role === 'admin') {
+      return <AdminDashboard onLogout={handleLogout} />;
+    }
+    return (
+      <div style={styles.adminLogin}>
+        <div style={styles.adminCard}>
+          <div style={styles.logoBadge}>
+            <div style={styles.greenDot}></div>
+            <span style={styles.logoText}>DriverVerify</span>
+          </div>
+          <p style={styles.adminTitle}>Admin Access</p>
+          <input
+            type="password"
+            placeholder="Enter admin password"
+            value={adminInput}
+            onChange={e => setAdminInput(e.target.value)}
+            style={styles.input}
+          />
+          {adminError && <p style={styles.error}>{adminError}</p>}
+          <button style={styles.btn} onClick={handleAdminLogin}>Login</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
+
+      {/* Fake Admin — Access Denied */}
+      {currentRole === 'fake-admin' && (
+        <div style={styles.adminLogin}>
+          <div style={styles.adminCard}>
+            <div style={styles.logoBadge}>
+              <div style={styles.greenDot}></div>
+              <span style={styles.logoText}>DriverVerify</span>
+            </div>
+            <p style={{ fontSize: '40px', textAlign: 'center', marginBottom: '1rem' }}>🚫</p>
+            <p style={{ fontSize: '18px', fontWeight: '700', color: '#111', textAlign: 'center', marginBottom: '8px' }}>
+              Access Denied
+            </p>
+            <p style={{ fontSize: '13px', color: '#888', textAlign: 'center', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+              You are not authorized to access the admin panel.
+            </p>
+            <button style={styles.btn} onClick={handleBack}>Go Back</button>
+          </div>
+        </div>
+      )}
+
       {/* Landing Page */}
       {currentRole === null && (
         <LandingPage onSelectRole={handleSelectRole} />
       )}
 
       {/* Auth Page */}
-      {currentRole !== null && currentUser === null && (
-        <AuthPage
-          role={currentRole}
-          onLogin={handleLogin}
-          onBack={handleBack}
-        />
+      {currentRole !== null && currentRole !== 'fake-admin' && currentUser === null && (
+        <AuthPage role={currentRole} onLogin={handleLogin} onBack={handleBack} />
       )}
 
       {/* Driver Dashboard */}
@@ -45,23 +109,39 @@ function App() {
         <DriverDashboard user={currentUser} onLogout={handleLogout} />
       )}
 
-      {/* Passenger Dashboard — coming next */}
+      {/* Passenger Dashboard */}
       {currentUser !== null && currentUser.role === 'passenger' && (
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
-          <h1>Passenger Dashboard — Coming Soon</h1>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
+        <PassengerDashboard user={currentUser} onLogout={handleLogout} />
       )}
 
-      {/* Admin Dashboard — coming next */}
-      {currentUser !== null && currentUser.role === 'admin' && (
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
-          <h1>Admin Dashboard — Coming Soon</h1>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      )}
     </div>
   );
 }
+
+const styles = {
+  adminLogin: {
+    minHeight: '100vh', backgroundColor: '#f5f5f5',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  adminCard: {
+    backgroundColor: '#fff', border: '1px solid #e0e0e0',
+    borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '360px',
+  },
+  logoBadge: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '1.5rem' },
+  greenDot: { width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' },
+  logoText: { fontSize: '16px', fontWeight: '600', color: '#111' },
+  adminTitle: { fontSize: '20px', fontWeight: '700', color: '#111', marginBottom: '1rem' },
+  input: {
+    width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0',
+    borderRadius: '8px', fontSize: '14px', fontFamily: 'inherit',
+    outline: 'none', marginBottom: '8px',
+  },
+  error: { fontSize: '13px', color: '#e53e3e', marginBottom: '8px' },
+  btn: {
+    width: '100%', padding: '11px', backgroundColor: '#111',
+    color: '#fff', border: 'none', borderRadius: '8px',
+    fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
+  },
+};
 
 export default App;
