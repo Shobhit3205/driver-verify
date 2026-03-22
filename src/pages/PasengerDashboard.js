@@ -4,12 +4,12 @@ function PassengerDashboard({ user, onLogout }) {
   const [phone, setPhone] = useState('');
   const [driver, setDriver] = useState(null);
   const [error, setError] = useState('');
-  const [searched, setSearched] = useState(false);
+  //const [searched, setSearched] = useState(false);
 
   const handleVerify = () => {
     setError('');
     setDriver(null);
-    setSearched(true);
+   // setSearched(true);
 
     if (!phone || phone.length !== 10) {
       setError('Please enter a valid 10-digit phone number');
