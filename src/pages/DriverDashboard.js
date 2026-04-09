@@ -95,12 +95,11 @@ useEffect(() => {
           <p style={styles.qrTitle}>Your Verification QR</p>
           <p style={styles.qrSub}>Show this to passengers to verify your identity</p>
           <div style={styles.qrBox}>
-     <QRCodeSVG
-  value={`DRIVERVERIFY:${driver.phone}:${driver.id}`}
+ <QRCodeSVG
+  value={`https://driver-verify-git-main-shobhit3205s-projects.vercel.app/driver/${driver.phone}`}
   size={130}
   level="H"
 />
-  
            </div>
           <p style={{ fontSize: '12px', color: '#888', marginTop: '8px' }}>
             Driver ID: {driver.id}
