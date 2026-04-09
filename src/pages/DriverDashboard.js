@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { getDriverByUserId } from '../api';
 
 function DriverDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('profile');
   const [driver, setDriver] = useState(null);
 
-  useEffect(() => {
-    const drivers = JSON.parse(localStorage.getItem('dv_drivers') || '[]');
-    const found = drivers.find(d => d.userId === user.id);
-    setDriver(found);
-  }, [user]);
+useEffect(() => {
+  const loadDriver = async () => {
+    const result = await getDriverByUserId(user._id || user.id);
+    if (result.driver) {
+      setDriver(result.driver);
+    }
+  };
+  loadDriver();
+}, [user]);
 
   if (!driver) {
     return (

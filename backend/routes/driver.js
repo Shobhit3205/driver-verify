@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 // Driver Schema
 const driverSchema = new mongoose.Schema({
+  userId:String,
   name: String,
   phone: { type: String, unique: true },
   password: String,
@@ -127,6 +128,18 @@ router.delete('/reject/:id', async (req, res) => {
   try {
     await Driver.findByIdAndDelete(req.params.id);
     res.json({ message: 'Driver rejected' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const driver = await Driver.findOne({ userId: req.params.userId });
+    if (!driver) {
+      return res.status(404).json({ message: 'Driver not found' });
+    }
+    res.json({ driver });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

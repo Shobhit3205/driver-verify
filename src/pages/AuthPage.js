@@ -1,4 +1,7 @@
+
+import { registerDriver, registerPassenger, loginUser } from '../api';
 import React, { useState } from 'react';
+
 
 function AuthPage({ role, onLogin, onBack }) {
   const [activeTab, setActiveTab] = useState('login');
@@ -18,65 +21,61 @@ function AuthPage({ role, onLogin, onBack }) {
   const [suVtype, setSuVtype] = useState('');
   const [suCity, setSuCity] = useState('');
 
-  const handleLogin = () => {
-    setError('');
-    if (!loginPhone || !loginPass) {
-      setError('Please fill all fields'); return;
+  const handleLogin = async () => {
+  setError('');
+  if (!loginPhone || !loginPass) {
+    setError('Please fill all fields'); return;
+  }
+  if (role === 'admin') {
+    if (loginPhone === '0000000000' && loginPass === 'admin123') {
+      onLogin({ name: 'Admin', role: 'admin' });
+    } else {
+      setError('Invalid admin credentials');
     }
-    if (role === 'admin') {
-      if (loginPhone === '0000000000' && loginPass === 'admin123') {
-        onLogin({ name: 'Admin', role: 'admin' });
-      } else {
-        setError('Invalid admin credentials');
-      }
-      return;
-    }
-    const users = JSON.parse(localStorage.getItem('dv_users') || '[]');
-    const user = users.find(u => u.phone === loginPhone && u.password === loginPass && u.role === role);
-    if (!user) {
-      setError('Phone or password incorrect'); return;
-    }
-    onLogin(user);
-  };
+    return;
+  }
+  const result = await loginUser({ phone: loginPhone, password: loginPass, role });
+  if (result.user) {
+    onLogin(result.user);
+  } else {
+    setError(result.message || 'Login failed');
+  }
+};
 
-  const handleSignup = () => {
-    setError('');
-    if (!suName || !suPhone || !suPass) {
-      setError('Please fill all fields'); return;
-    }
-    if (suPhone.length !== 10) {
-      setError('Enter valid 10-digit phone'); return;
-    }
-    if (suPass.length < 6) {
-      setError('Password must be 6+ characters'); return;
-    }
-    if (role === 'driver') {
-      if (!suOlaId || !suVehicle || !suLicense || !suVtype || !suCity) {
-        setError('Please fill all driver fields'); return;
-      }
-    }
-    const users = JSON.parse(localStorage.getItem('dv_users') || '[]');
-    if (users.find(u => u.phone === suPhone)) {
-      setError('Account already exists'); return;
-    }
-    const newUser = { id: 'U' + Date.now(), name: suName, phone: suPhone, password: suPass, role };
-    users.push(newUser);
-    localStorage.setItem('dv_users', JSON.stringify(users));
+ const handleSignup = async () => {
+  setError('');
+  if (!suName || !suPhone || !suPass) {
+    setError('Please fill all fields'); return;
+  }
+  if (suPhone.length !== 10) {
+    setError('Enter valid 10-digit phone'); return;
+  }
+  if (suPass.length < 6) {
+    setError('Password must be 6+ characters'); return;
+  }
 
-    if (role === 'driver') {
-      const drivers = JSON.parse(localStorage.getItem('dv_drivers') || '[]');
-      const newDriver = {
-        id: 'DV' + Date.now(), userId: newUser.id, name: suName, phone: suPhone,
-        olaid: suOlaId, vehicle: suVehicle, license: suLicense, vtype: suVtype,
-        city: suCity, status: 'pending', rating: '4.5', trips: 0,
-        registeredAt: new Date().toLocaleDateString('en-IN')
-      };
-      drivers.push(newDriver);
-      localStorage.setItem('dv_drivers', JSON.stringify(drivers));
+  let result;
+  if (role === 'driver') {
+    if (!suOlaId || !suVehicle || !suLicense || !suVtype || !suCity) {
+      setError('Please fill all driver fields'); return;
     }
-    onLogin(newUser);
-  };
+    result = await registerDriver({
+      name: suName, phone: suPhone, password: suPass,
+      olaid: suOlaId, vehicle: suVehicle, license: suLicense,
+      vtype: suVtype, city: suCity
+    });
+  } else {
+    result = await registerPassenger({
+      name: suName, phone: suPhone, password: suPass
+    });
+  }
 
+  if (result.user) {
+    onLogin(result.user);
+  } else {
+    setError(result.message || 'Signup failed');
+  }
+};
   return (
     <div style={styles.container}>
 

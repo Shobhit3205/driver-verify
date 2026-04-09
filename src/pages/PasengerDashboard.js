@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { verifyDriver } from '../api';
 
 function PassengerDashboard({ user, onLogout }) {
   const [phone, setPhone] = useState('');
@@ -6,27 +7,23 @@ function PassengerDashboard({ user, onLogout }) {
   const [error, setError] = useState('');
   //const [searched, setSearched] = useState(false);
 
-  const handleVerify = () => {
-    setError('');
-    setDriver(null);
-   // setSearched(true);
+const handleVerify = async () => {
+  setError('');
+  setDriver(null);
 
-    if (!phone || phone.length !== 10) {
-      setError('Please enter a valid 10-digit phone number');
-      return;
-    }
+  if (!phone || phone.length !== 10) {
+    setError('Please enter a valid 10-digit phone number');
+    return;
+  }
 
-    const drivers = JSON.parse(localStorage.getItem('dv_drivers') || '[]');
-    const found = drivers.find(d => d.phone === phone);
-
-    if (!found) {
-      setError('Driver not found. This number is not registered on DriverVerify.');
-      return;
-    }
-
-    setDriver(found);
-  };
-
+  const result = await verifyDriver(phone);
+  
+  if (result.driver) {
+    setDriver(result.driver);
+  } else {
+    setError('Driver not found. This number is not registered on DriverVerify.');
+  }
+};
   return (
     <div style={styles.container}>
 

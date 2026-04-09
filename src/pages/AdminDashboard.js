@@ -1,4 +1,7 @@
+import { getAllDrivers, approveDriver, rejectDriver } from '../api';
 import React, { useState, useEffect } from 'react';
+
+
 
 function AdminDashboard({ onLogout }) {
   const [activeTab, setActiveTab] = useState('pending');
@@ -8,27 +11,20 @@ function AdminDashboard({ onLogout }) {
     loadDrivers();
   }, []);
 
-  const loadDrivers = () => {
-    const data = JSON.parse(localStorage.getItem('dv_drivers') || '[]');
-    setDrivers(data);
-  };
-
-  const handleApprove = (driverId) => {
-    const data = JSON.parse(localStorage.getItem('dv_drivers') || '[]');
-    const updated = data.map(d =>
-      d.id === driverId ? { ...d, status: 'approved' } : d
-    );
-    localStorage.setItem('dv_drivers', JSON.stringify(updated));
-    loadDrivers();
-  };
-
-  const handleReject = (driverId) => {
-    const data = JSON.parse(localStorage.getItem('dv_drivers') || '[]');
-    const updated = data.filter(d => d.id !== driverId);
-    localStorage.setItem('dv_drivers', JSON.stringify(updated));
-    loadDrivers();
-  };
-
+const loadDrivers = async () => {
+  const result = await getAllDrivers();
+  if (result.drivers) {
+    setDrivers(result.drivers);
+  }
+};
+const handleApprove = async (driverId) => {
+  await approveDriver(driverId);
+  loadDrivers();
+};
+ const handleReject = async (driverId) => {
+  await rejectDriver(driverId);
+  loadDrivers();
+};
   const pendingDrivers = drivers.filter(d => d.status === 'pending');
   const approvedDrivers = drivers.filter(d => d.status === 'approved');
   const currentList = activeTab === 'pending' ? pendingDrivers : approvedDrivers;
