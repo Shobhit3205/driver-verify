@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'https://driver-verify-7yvs.vercel.app/api';
 
 // Register Driver
 export const registerDriver = async (data) => {
