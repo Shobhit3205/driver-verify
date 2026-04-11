@@ -82,8 +82,10 @@ router.post('/register-passenger', async (req, res) => {
     await newUser.save();
     res.json({ message: 'Passenger registered successfully', user: newUser });
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
+  console.error('REGISTER ERROR:', err.message);
+  console.error('FULL ERROR:', JSON.stringify(err));
+  res.status(500).json({ message: 'Server error', error: err.message });
+}
 });
 
 // Verify Driver by phone
